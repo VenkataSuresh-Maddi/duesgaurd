@@ -1,0 +1,15 @@
+{
+  "name": "duesguard-auth",
+  "version": "1.0.0",
+  "description": "Auth system with MySQL for DuesGuard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0"
+  }
+}
