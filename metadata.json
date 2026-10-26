@@ -1,0 +1,6 @@
+{
+  "name": "DuesGuard AI",
+  "description": "Agentic AI-Powered MSME Payment Intelligence & Dispute Preparation Platform for Indian MSMEs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
