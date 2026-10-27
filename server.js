@@ -21,11 +21,19 @@ const { runDisputePreparationWorkflow } = require('./services/aiDisputeService')
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Ensure upload & invoices directories exist
-const uploadDir = path.join(__dirname, 'uploads');
-const pdfDir = path.join(__dirname, 'generated_invoices');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
+const os = require('os');
+
+// Ensure upload & invoices directories exist (use os.tmpdir() on serverless Vercel)
+const isServerless = !!process.env.VERCEL;
+const uploadDir = isServerless ? path.join(os.tmpdir(), 'uploads') : path.join(__dirname, 'uploads');
+const pdfDir = isServerless ? path.join(os.tmpdir(), 'generated_invoices') : path.join(__dirname, 'generated_invoices');
+
+try {
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+  if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
+} catch (err) {
+  console.warn('Directory creation warning (ignoring on read-only serverless):', err.message);
+}
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
