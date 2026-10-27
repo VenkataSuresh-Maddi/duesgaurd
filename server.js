@@ -58,17 +58,21 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Store with MySQL (with memory fallback if cloud DB not connected yet)
-let sessionStore;
-try {
-  sessionStore = new MySQLStore({
-    clearExpired: true,
-    checkExpirationInterval: 900000,
-    expiration: 86400000,
-    createDatabaseTable: true
-  }, pool);
-} catch (e) {
-  console.warn('MySQL session store fallback:', e.message);
+// Session Store Configuration
+// On Vercel without external cloud MySQL host, default to memory store to prevent uncaught pool crash
+let sessionStore = null;
+if (!process.env.VERCEL && process.env.DB_HOST && process.env.DB_HOST !== '127.0.0.1') {
+  try {
+    sessionStore = new MySQLStore({
+      clearExpired: true,
+      checkExpirationInterval: 900000,
+      expiration: 86400000,
+      createDatabaseTable: true
+    }, pool);
+    sessionStore.on('error', (err) => console.warn('Session store error:', err.message));
+  } catch (e) {
+    console.warn('MySQL session store fallback:', e.message);
+  }
 }
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -1175,6 +1179,8 @@ async function startServer() {
   }
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 module.exports = app;
