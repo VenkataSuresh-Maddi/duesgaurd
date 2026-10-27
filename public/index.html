@@ -3,129 +3,680 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DuesGuard - Authentication</title>
-  <link rel="stylesheet" href="style.css">
+  <title>DuesGuard AI — MSME Payment Intelligence Platform</title>
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
-  <div class="auth-container">
-    <div class="brand">
+
+  <!-- ================= AUTH VIEW ================= -->
+  <div id="authView" class="auth-wrapper">
+    <div class="auth-card">
       <div class="brand-badge">
         <svg viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.07-3.27-1.06-6-4.93-6-9.07V6.43l6-2.25z"/></svg>
       </div>
-      <h1>DuesGuard</h1>
-      <p id="auth-subtitle">Welcome back. Enter your credentials to access your account.</p>
-    </div>
+      <h1 class="brand-title">DuesGuard AI</h1>
+      <p class="brand-sub" id="authSubtitle">MSME Payment Intelligence & Dispute Resolution</p>
 
-    <div class="auth-tabs" id="authTabs">
-      <button class="tab-btn active" id="tabLogin" type="button">Login</button>
-      <button class="tab-btn" id="tabSignup" type="button">Sign Up</button>
-    </div>
-
-    <div id="alertBox" class="alert-box"></div>
-
-    <!-- Login Form -->
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="loginEmail">Email Address</label>
-        <input type="email" id="loginEmail" required placeholder="name@example.com" autocomplete="email">
+      <div class="auth-tabs" id="authTabs">
+        <button class="tab-btn active" id="tabLoginBtn" type="button">Login</button>
+        <button class="tab-btn" id="tabSignupBtn" type="button">Sign Up</button>
       </div>
-      <div class="form-group">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-          <label for="loginPassword" style="margin-bottom: 0;">Password</label>
-          <a href="#" id="forgotPasswordLink" class="link-text">Forgot password?</a>
+
+      <div id="authAlert" class="alert-box"></div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" required placeholder="name@business.com">
         </div>
-        <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <button type="submit" class="submit-btn" id="loginBtn">Log In</button>
-    </form>
-
-    <!-- Forgot Password Form -->
-    <form id="forgotForm" style="display: none;">
-      <div class="form-group">
-        <label for="forgotEmail">Registered Email</label>
-        <input type="email" id="forgotEmail" required placeholder="name@example.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label for="newPassword">New Password</label>
-        <input type="password" id="newPassword" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password">
-      </div>
-      <button type="submit" class="submit-btn" id="resetBtn">Reset Password</button>
-      <div style="text-align: center; margin-top: 1rem;">
-        <a href="#" id="backToLoginLink" class="link-text">← Back to Login</a>
-      </div>
-    </form>
-
-    <!-- Signup Form -->
-    <form id="signupForm" style="display: none;">
-      <div class="form-group">
-        <label for="signupName">Full Name</label>
-        <input type="text" id="signupName" required placeholder="Jane Doe" autocomplete="name">
-      </div>
-      <div class="form-group">
-        <label for="signupEmail">Email Address</label>
-        <input type="email" id="signupEmail" required placeholder="name@example.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label for="signupPassword">Password</label>
-        <input type="password" id="signupPassword" required minlength="6" placeholder="At least 6 characters" autocomplete="new-password">
-      </div>
-      <button type="submit" class="submit-btn" id="signupBtn">Create Account</button>
-    </form>
-
-    <!-- Logged In / Dashboard Page -->
-    <div id="loggedInState" class="user-status">
-      <div class="welcome-avatar">
-        <span id="userInitial">U</span>
-      </div>
-      <h2 class="welcome-title">Hello, <span id="userName">User</span>!</h2>
-      <p class="welcome-email" id="userEmail"></p>
-      
-      <div class="user-card-badge">
-        <span class="status-indicator"></span> Verified Member
-      </div>
-
-      <!-- Business Section in Dashboard -->
-      <div class="business-section">
-        <div class="business-header">
-          <h3>Register Your Business</h3>
-          <p>Link your business profile to your account (<span id="bizUserEmailBadge"></span>)</p>
+        <div class="form-group">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label>Password</label>
+            <a href="#" id="forgotPwLink" style="font-size:0.8rem; color:#94a3b8; text-decoration:none;">Forgot password?</a>
+          </div>
+          <input type="password" id="loginPassword" required placeholder="••••••••">
         </div>
+        <button type="submit" class="btn-primary" id="loginSubmitBtn">Access Workspace</button>
+      </form>
 
-        <div id="bizAlertBox" class="alert-box" style="margin-top: 1rem;"></div>
-
-        <form id="businessForm" class="business-form">
-          <div class="form-group">
-            <label for="bizName">Business Name *</label>
-            <input type="text" id="bizName" required placeholder="e.g. Acme Tech Solutions">
-          </div>
-          <div class="form-group">
-            <label for="bizType">Business Category / Type</label>
-            <input type="text" id="bizType" placeholder="e.g. Retail, Software, Services">
-          </div>
-          <div class="form-group">
-            <label for="bizPhone">Contact Phone</label>
-            <input type="tel" id="bizPhone" placeholder="+1 (555) 000-0000">
-          </div>
-          <div class="form-group">
-            <label for="bizAddress">Business Address</label>
-            <input type="text" id="bizAddress" placeholder="Street, City, Country">
-          </div>
-          <button type="submit" class="submit-btn" id="bizSubmitBtn">Register Business</button>
-        </form>
-
-        <!-- List of Registered Businesses -->
-        <div class="biz-list-wrapper">
-          <h4>Your Registered Businesses</h4>
-          <div id="businessesList" class="businesses-list">
-            <p class="empty-list-text">No businesses registered yet.</p>
-          </div>
+      <!-- Signup Form -->
+      <form id="signupForm" style="display:none;">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="signupName" required placeholder="Rajesh Kumar">
         </div>
-      </div>
+        <div class="form-group">
+          <label>Work Email</label>
+          <input type="email" id="signupEmail" required placeholder="rajesh@enterprises.com">
+        </div>
+        <div class="form-group">
+          <label>Password (Min. 6 chars)</label>
+          <input type="password" id="signupPassword" required minlength="6" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-primary">Create MSME Account</button>
+      </form>
 
-      <button type="button" class="submit-btn logout-btn" id="logoutBtn" style="margin-top: 2rem;">Log Out</button>
+      <!-- Password Reset Form -->
+      <form id="resetForm" style="display:none;">
+        <div class="form-group">
+          <label>Registered Email</label>
+          <input type="email" id="resetEmail" required placeholder="name@business.com">
+        </div>
+        <div class="form-group">
+          <label>Reset Token (Optional in dev)</label>
+          <input type="text" id="resetToken" placeholder="Paste single-use token">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="resetNewPassword" required minlength="6" placeholder="At least 6 characters">
+        </div>
+        <button type="submit" class="btn-primary">Update Password</button>
+        <div style="text-align:center; margin-top:1rem;">
+          <a href="#" id="backToLoginLink" style="font-size:0.85rem; color:#94a3b8; text-decoration:none;">← Back to login</a>
+        </div>
+      </form>
     </div>
   </div>
 
-  <script src="app.js?v=4"></script>
+  <!-- ================= APP DASHBOARD SHELL ================= -->
+  <div id="appShell" class="app-shell" style="display:none;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-badge" style="width:36px; height:36px; margin-bottom:0;">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px;"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.01-6 9.07-3.27-1.06-6-4.93-6-9.07V6.43l6-2.25z"/></svg>
+        </div>
+        <h2>DuesGuard AI</h2>
+      </div>
+
+      <!-- Business Switcher -->
+      <div class="business-selector">
+        <label>Active Enterprise</label>
+        <select id="businessSelect" style="width:100%; padding:0.5rem; background:#090d16; border:1px solid #334155; border-radius:4px; color:#fff; font-size:0.85rem;">
+          <option value="">Loading businesses...</option>
+        </select>
+        <button id="quickAddBizBtn" style="background:none; border:none; color:#818cf8; font-size:0.75rem; cursor:pointer; margin-top:0.4rem; padding:0;">+ Add Another Business</button>
+      </div>
+
+      <ul class="nav-links">
+        <li class="nav-item active" data-tab="dashboard">📊 Dashboard & Aging</li>
+        <li class="nav-item" data-tab="invoices">📄 Invoices & GST</li>
+        <li class="nav-item" data-tab="upload">📥 Upload & OCR Extract</li>
+        <li class="nav-item" data-tab="customers">👥 Customer Directory</li>
+        <li class="nav-item" data-tab="products">📦 Product Catalogue</li>
+        <li class="nav-item" data-tab="payments">💳 Payment Tracking</li>
+        <li class="nav-item" data-tab="reminders">⏰ Automated Reminders</li>
+        <li class="nav-item" data-tab="disputes">⚖️ MSME Samadhaan Prep</li>
+        <li class="nav-item" data-tab="businesses">🏢 Business Profiles</li>
+      </ul>
+
+      <div class="user-profile-bar">
+        <div class="user-info">
+          <div class="avatar" id="avatarInitial">U</div>
+          <div>
+            <div id="sidebarUserName" style="font-size:0.85rem; font-weight:600; color:#fff;">User</div>
+            <div id="sidebarUserEmail" style="font-size:0.75rem; color:#94a3b8; max-width:130px; overflow:hidden; text-overflow:ellipsis;">user@mail</div>
+          </div>
+        </div>
+        <button id="logoutBtn" style="background:none; border:none; color:#ef4444; font-size:0.8rem; cursor:pointer; font-weight:600;">Exit</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: DASHBOARD -->
+      <section id="tab-dashboard" class="content-tab">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Financial Intelligence & Receivables</h2>
+            <p class="page-subtitle">Real-time outstanding balance and MSME statutory payment tracking</p>
+          </div>
+          <div>
+            <button class="btn-primary" id="btnQuickCreateInv" style="width:auto; padding:0.6rem 1.25rem;">+ New Invoice</button>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Total Outstanding Dues</div>
+            <div class="metric-val" id="metricTotalReceivables">₹ 0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Overdue (>45 MSME Days)</div>
+            <div class="metric-val danger" id="metricTotalOverdue">₹ 0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Collected</div>
+            <div class="metric-val success" id="metricTotalCollected">₹ 0.00</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Overdue Invoices</div>
+            <div class="metric-val warning" id="metricOverdueCount">0</div>
+          </div>
+        </div>
+
+        <!-- Aging Analysis Grid -->
+        <div class="table-container" style="padding:1.5rem; margin-bottom:2rem;">
+          <h3 style="font-size:1rem; margin-bottom:1rem; color:#fff;">Statutory MSME Aging Buckets</h3>
+          <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:1rem; text-align:center;">
+            <div style="background:#090d16; padding:1rem; border-radius:6px; border:1px solid #1e293b;">
+              <div style="font-size:0.75rem; color:#94a3b8;">Current (Not Due)</div>
+              <div id="agingCurrent" style="font-size:1.1rem; font-weight:700; color:#10b981; margin-top:0.25rem;">₹ 0.00</div>
+            </div>
+            <div style="background:#090d16; padding:1rem; border-radius:6px; border:1px solid #1e293b;">
+              <div style="font-size:0.75rem; color:#94a3b8;">1 - 7 Days Overdue</div>
+              <div id="aging1_7" style="font-size:1.1rem; font-weight:700; color:#f59e0b; margin-top:0.25rem;">₹ 0.00</div>
+            </div>
+            <div style="background:#090d16; padding:1rem; border-radius:6px; border:1px solid #1e293b;">
+              <div style="font-size:0.75rem; color:#94a3b8;">8 - 15 Days Overdue</div>
+              <div id="aging8_15" style="font-size:1.1rem; font-weight:700; color:#fb923c; margin-top:0.25rem;">₹ 0.00</div>
+            </div>
+            <div style="background:#090d16; padding:1rem; border-radius:6px; border:1px solid #1e293b;">
+              <div style="font-size:0.75rem; color:#94a3b8;">16 - 30 Days Overdue</div>
+              <div id="aging16_30" style="font-size:1.1rem; font-weight:700; color:#f87171; margin-top:0.25rem;">₹ 0.00</div>
+            </div>
+            <div style="background:#090d16; padding:1rem; border-radius:6px; border:1px solid #1e293b;">
+              <div style="font-size:0.75rem; color:#94a3b8;">> 30 Days (Dispute Ready)</div>
+              <div id="agingOver30" style="font-size:1.1rem; font-weight:700; color:#ef4444; margin-top:0.25rem;">₹ 0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Invoices Table -->
+        <div class="table-container">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size:1rem; color:#fff;">Recent Invoices</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Due Date</th>
+                <th>Grand Total</th>
+                <th>Balance Due</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardInvoicesBody">
+              <tr><td colspan="6" style="text-align:center; color:#94a3b8;">No invoices found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 2: INVOICES -->
+      <section id="tab-invoices" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Tax Invoices</h2>
+            <p class="page-subtitle">Generate compliant GST invoices with automated CGST/SGST/IGST breakdown</p>
+          </div>
+          <button class="btn-primary" id="btnOpenCreateInvModal" style="width:auto; padding:0.6rem 1.25rem;">+ Generate Invoice</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Invoice Date</th>
+                <th>Due Date</th>
+                <th>Grand Total</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+              <tr><td colspan="8" style="text-align:center; color:#94a3b8;">No invoices registered.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 3: UPLOAD & OCR -->
+      <section id="tab-upload" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Digital & Scanned Invoice Extraction</h2>
+            <p class="page-subtitle">Upload digital PDF or scanned image invoices for automated extraction and discrepancy verification</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem;">
+          <div class="table-container" style="padding:2rem;">
+            <h3 style="font-size:1.1rem; margin-bottom:1rem; color:#fff;">Upload Invoice Document</h3>
+            <div id="uploadAlert" class="alert-box"></div>
+            <form id="uploadForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label>Select PDF / Scanned Image (Max 10MB)</label>
+                <input type="file" id="invoiceFileInput" accept=".pdf,image/png,image/jpeg" required>
+              </div>
+              <button type="submit" class="btn-primary" id="btnStartUpload">Extract Metadata</button>
+            </form>
+          </div>
+
+          <div class="table-container" style="padding:2rem;">
+            <h3 style="font-size:1.1rem; margin-bottom:1rem; color:#fff;">Extraction Results & Verification</h3>
+            <div id="extractionReviewBox" style="color:#94a3b8; font-size:0.9rem;">
+              Upload an invoice to view extracted invoice number, GSTIN, dates, and amounts.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: CUSTOMERS -->
+      <section id="tab-customers" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Customer Directory</h2>
+            <p class="page-subtitle">Manage client details, billing states, and GSTIN for place of supply tax calculation</p>
+          </div>
+          <button class="btn-primary" id="btnAddCustomerBtn" style="width:auto; padding:0.6rem 1.25rem;">+ Add Customer</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>State (Tax Jurisdiction)</th>
+                <th>GSTIN</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">No customers registered.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 5: PRODUCTS -->
+      <section id="tab-products" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Product & Service Catalogue</h2>
+            <p class="page-subtitle">Configure items with internal cost price and customer selling price with GST rates</p>
+          </div>
+          <button class="btn-primary" id="btnAddProductBtn" style="width:auto; padding:0.6rem 1.25rem;">+ Add Item</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Item / SKU</th>
+                <th>Unit</th>
+                <th>Selling Price (INR)</th>
+                <th>GST Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">No products found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 6: PAYMENTS -->
+      <section id="tab-payments" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Payment Tracking</h2>
+            <p class="page-subtitle">Record partial or full bank reconciliations against outstanding invoices</p>
+          </div>
+          <button class="btn-primary" id="btnRecordPaymentModal" style="width:auto; padding:0.6rem 1.25rem;">+ Record Payment</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Payment Date</th>
+                <th>Amount Paid (INR)</th>
+                <th>Method</th>
+                <th>Reference No</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payments recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 7: REMINDERS -->
+      <section id="tab-reminders" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Automated Overdue Email Reminders</h2>
+            <p class="page-subtitle">Background daemon automatically delivers polite notices and MSMED statutory warnings</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn-secondary" id="btnTriggerReminderCycle">⚡ Run Scheduler Cycle</button>
+            <button class="btn-primary" id="btnTestSendReminder" style="width:auto; padding:0.6rem 1.25rem;">Send Test Email</button>
+          </div>
+        </div>
+
+        <div id="reminderAlert" class="alert-box"></div>
+
+        <div class="table-container">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid #1e293b;">
+            <h3 style="font-size:1rem; color:#fff;">Durable Email Reminder Audit Logs</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Recipient</th>
+                <th>Reminder Rule</th>
+                <th>Status</th>
+                <th>Dispatched At</th>
+              </tr>
+            </thead>
+            <tbody id="reminderLogsTableBody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">No reminder logs recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 8: AI DISPUTE PREPARATION -->
+      <section id="tab-disputes" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Agentic AI & MSME Samadhaan Preparation</h2>
+            <p class="page-subtitle">Automated case evaluation, 3x RBI penal interest computation, and evidence verification</p>
+          </div>
+        </div>
+
+        <div class="table-container" style="padding:1.5rem; margin-bottom:2rem;">
+          <h3 style="font-size:1rem; margin-bottom:1rem; color:#fff;">Evaluate Overdue Invoice for MSME Dispute</h3>
+          <div style="display:flex; gap:1rem; align-items:flex-end;">
+            <div class="form-group" style="flex:1; margin-bottom:0;">
+              <label>Select Overdue Invoice</label>
+              <select id="disputeInvoiceSelect" style="width:100%;">
+                <option value="">Select Invoice...</option>
+              </select>
+            </div>
+            <button class="btn-primary" id="btnRunAIAgent" style="width:auto; padding:0.75rem 1.5rem;">Launch Multi-Agent Analysis</button>
+          </div>
+        </div>
+
+        <div id="aiAnalysisResults" style="display:none;" class="table-container">
+          <!-- Filled dynamically by AI agent results -->
+        </div>
+
+        <div class="table-container" style="margin-top:2rem;">
+          <div style="padding:1rem 1.25rem; border-bottom:1px solid #1e293b;">
+            <h3 style="font-size:1rem; color:#fff;">Active Dispute Cases</h3>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Case #</th>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Total Claim (Principal + Statutory Interest)</th>
+                <th>Samadhaan Readiness</th>
+              </tr>
+            </thead>
+            <tbody id="disputeCasesTableBody">
+              <tr><td colspan="5" style="text-align:center; color:#94a3b8;">No dispute cases filed yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 9: BUSINESSES -->
+      <section id="tab-businesses" class="content-tab" style="display:none;">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Multiple Business Management</h2>
+            <p class="page-subtitle">Register and configure multiple commercial enterprises under your account</p>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2rem;">
+          <div class="table-container" style="padding:2rem;">
+            <h3 style="font-size:1.1rem; margin-bottom:1.25rem; color:#fff;">Register Enterprise</h3>
+            <form id="newBizForm">
+              <div class="form-group">
+                <label>Business Name *</label>
+                <input type="text" id="regBizName" required placeholder="e.g. Apex Engineering Works">
+              </div>
+              <div class="form-group">
+                <label>Business Type</label>
+                <input type="text" id="regBizType" placeholder="Manufacturing, Services, Trading">
+              </div>
+              <div class="form-group">
+                <label>GSTIN (Optional)</label>
+                <input type="text" id="regBizGSTIN" placeholder="29ABCDE1234F1Z5">
+              </div>
+              <div class="form-group">
+                <label>State (Place of Supply origin)</label>
+                <input type="text" id="regBizState" value="Karnataka" placeholder="Karnataka, Maharashtra, etc.">
+              </div>
+              <div class="form-group">
+                <label>Contact Phone</label>
+                <input type="text" id="regBizPhone" placeholder="+91 9876543210">
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="regBizAddress" placeholder="Industrial Area, Phase 1">
+              </div>
+              <button type="submit" class="btn-primary">Register Enterprise</button>
+            </form>
+          </div>
+
+          <div class="table-container" style="padding:2rem;">
+            <h3 style="font-size:1.1rem; margin-bottom:1.25rem; color:#fff;">Your Registered Enterprises</h3>
+            <div id="allBusinessesList"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= INVOICE GENERATION MODAL ================= -->
+  <div id="createInvoiceModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content" style="max-width:850px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 style="font-size:1.25rem; color:#fff;">Generate Tax Invoice</h2>
+        <button id="btnCloseInvModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <div id="invModalAlert" class="alert-box"></div>
+
+      <form id="createInvoiceForm">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Select Customer *</label>
+            <select id="invCustomerSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label>Invoice Date</label>
+            <input type="date" id="invDate">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Payment Due Date (MSME Max 45 Days)</label>
+            <input type="date" id="invDueDate">
+          </div>
+          <div class="form-group">
+            <label>PO / Contract Reference (Optional)</label>
+            <input type="text" id="invPoRef" placeholder="PO-2026-8871">
+          </div>
+        </div>
+
+        <!-- Line Items Section -->
+        <div style="margin:1.5rem 0; border-top:1px solid #1e293b; padding-top:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h4 style="color:#fff;">Line Items</h4>
+            <button type="button" class="btn-secondary btn-sm" id="btnAddLineItemRow">+ Add Item</button>
+          </div>
+
+          <div id="lineItemsContainer">
+            <!-- Dynamic item rows inserted here -->
+          </div>
+        </div>
+
+        <!-- Realtime Live Calculation Summary -->
+        <div style="background:#090d16; border:1px solid #1e293b; border-radius:6px; padding:1.25rem; margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.9rem;">
+            <span style="color:#94a3b8;">Subtotal:</span>
+            <span id="liveSubtotal" style="color:#fff; font-weight:600;">₹ 0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; font-size:0.9rem;">
+            <span style="color:#94a3b8;">Applicable GST (CGST/SGST/IGST):</span>
+            <span id="liveTax" style="color:#fff; font-weight:600;">₹ 0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; border-top:1px solid #1e293b; padding-top:0.5rem; font-size:1.1rem; font-weight:700;">
+            <span style="color:#fff;">Grand Total:</span>
+            <span id="liveGrandTotal" style="color:#10b981;">₹ 0.00</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btnSubmitGenerateInvoice">Generate & Print PDF Invoice</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customer Modal -->
+  <div id="customerModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 style="font-size:1.25rem; color:#fff;">Add Customer</h2>
+        <button id="btnCloseCustModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <form id="newCustomerForm">
+        <div class="form-group">
+          <label>Customer / Enterprise Name *</label>
+          <input type="text" id="custName" required placeholder="Tata Motors Ltd">
+        </div>
+        <div class="form-group">
+          <label>Billing Email *</label>
+          <input type="email" id="custEmail" required placeholder="accounts@tatamotors.com">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="custPhone" placeholder="+91 9988776655">
+        </div>
+        <div class="form-group">
+          <label>State (Crucial for Intra/Inter GST) *</label>
+          <input type="text" id="custState" value="Karnataka" required placeholder="Maharashtra, Karnataka, etc.">
+        </div>
+        <div class="form-group">
+          <label>Customer GSTIN (Optional)</label>
+          <input type="text" id="custGSTIN" placeholder="27AAACT2727Q1ZW">
+        </div>
+        <div class="form-group">
+          <label>Billing Address</label>
+          <textarea id="custBillingAddress" rows="2" placeholder="Corporate Towers, Sector 4"></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Save Customer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 style="font-size:1.25rem; color:#fff;">Add Product / Service</h2>
+        <button id="btnCloseProdModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <form id="newProductForm">
+        <div class="form-group">
+          <label>Item Name *</label>
+          <input type="text" id="prodName" required placeholder="Precision Machined Shaft">
+        </div>
+        <div class="form-group">
+          <label>SKU / Item Code</label>
+          <input type="text" id="prodSku" placeholder="SH-8821">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Cost Price (INR - Internal)</label>
+            <input type="number" id="prodCost" step="0.01" value="0.00">
+          </div>
+          <div class="form-group">
+            <label>Selling Price (INR) *</label>
+            <input type="number" id="prodSelling" step="0.01" required placeholder="1500.00">
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="form-group">
+            <label>Applicable GST Rate (%)</label>
+            <select id="prodGst">
+              <option value="0">0% (Exempt)</option>
+              <option value="5">5%</option>
+              <option value="12">12%</option>
+              <option value="18" selected>18%</option>
+              <option value="28">28%</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unit of Measurement</label>
+            <input type="text" id="prodUnit" value="PCS" placeholder="PCS, KGS, HRS">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Save Item</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h2 style="font-size:1.25rem; color:#fff;">Record Payment Received</h2>
+        <button id="btnClosePayModal" style="background:none; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div id="payModalAlert" class="alert-box"></div>
+      <form id="recordPaymentForm">
+        <div class="form-group">
+          <label>Select Unpaid / Partially Paid Invoice *</label>
+          <select id="payInvoiceSelect" required></select>
+        </div>
+        <div class="form-group">
+          <label>Payment Amount Received (INR) *</label>
+          <input type="number" id="payAmount" step="0.01" required placeholder="5000.00">
+        </div>
+        <div class="form-group">
+          <label>Payment Date</label>
+          <input type="date" id="payDate">
+        </div>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="payMethod">
+            <option value="NEFT / RTGS">NEFT / RTGS</option>
+            <option value="UPI">UPI</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Cash">Cash</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Transaction / UTR Reference</label>
+          <input type="text" id="payRef" placeholder="UTR-9928172611">
+        </div>
+        <button type="submit" class="btn-primary">Record Payment & Update Balance</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js?v=5"></script>
 </body>
 </html>
