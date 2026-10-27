@@ -50,28 +50,34 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Store with MySQL
-const sessionStore = new MySQLStore({
-  clearExpired: true,
-  checkExpirationInterval: 900000,
-  expiration: 86400000,
-  createDatabaseTable: true
-}, pool);
+// Session Store with MySQL (with memory fallback if cloud DB not connected yet)
+let sessionStore;
+try {
+  sessionStore = new MySQLStore({
+    clearExpired: true,
+    checkExpirationInterval: 900000,
+    expiration: 86400000,
+    createDatabaseTable: true
+  }, pool);
+} catch (e) {
+  console.warn('MySQL session store fallback:', e.message);
+}
 
 const isProduction = process.env.NODE_ENV === 'production';
-app.use(session({
+const sessionConfig = {
   key: 'duesguard_session_id',
   secret: process.env.SESSION_SECRET || 'duesguard_super_secure_session_secret_2026',
-  store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     httpOnly: true,
     secure: isProduction,
     sameSite: 'lax'
   }
-}));
+};
+if (sessionStore) sessionConfig.store = sessionStore;
+app.use(session(sessionConfig));
 
 // Rate Limiters
 const authLimiter = rateLimit({
@@ -1139,17 +1145,28 @@ app.get('/api/ai/cases', requireAuth, requireBusinessOwner, async (req, res) => 
 // SERVER INITIALIZATION
 // ==========================================
 
+let migrationsRan = false;
 async function startServer() {
   try {
-    await runMigrations();
-    startScheduler();
+    if (!migrationsRan) {
+      await runMigrations().catch(e => console.warn('Migration run warning:', e.message));
+      migrationsRan = true;
+    }
+    // Only run persistent scheduler in non-serverless environment
+    if (!process.env.VERCEL) {
+      startScheduler();
+    }
 
-    app.listen(port, () => {
-      console.log(`DuesGuard AI full-stack platform running on http://localhost:${port}`);
-    });
+    if (!process.env.VERCEL) {
+      app.listen(port, () => {
+        console.log(`DuesGuard AI full-stack platform running on http://localhost:${port}`);
+      });
+    }
   } catch (err) {
     console.error('Server startup error:', err);
   }
 }
 
 startServer();
+
+module.exports = app;
