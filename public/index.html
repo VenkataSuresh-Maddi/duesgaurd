@@ -510,11 +510,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-          <div class="form-group">
-            <label>Payment Due Date (Select Manually)</label>
-            <input type="date" id="invDueDate" required>
-          </div>
+        <div style="display:grid; grid-template-columns:1fr; gap:1rem;">
           <div class="form-group">
             <label>PO / Contract Reference (Optional)</label>
             <input type="text" id="invPoRef" placeholder="PO-2026-8871">
@@ -546,6 +542,27 @@
           <div style="display:flex; justify-content:space-between; border-top:1px solid #1e293b; padding-top:0.5rem; font-size:1.1rem; font-weight:700;">
             <span style="color:#fff;">Grand Total:</span>
             <span id="liveGrandTotal" style="color:#10b981;">₹ 0.00</span>
+          </div>
+        </div>
+
+        <!-- End of Invoice: Payment Status & Overdue Schedule -->
+        <div style="background:#131b2e; border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:1.5rem;">
+          <h4 style="color:#fff; font-size:0.95rem; margin-bottom:1rem;">Payment & Due Status</h4>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1rem;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label style="font-weight:600; color:#fff;">Has this invoice been paid?</label>
+              <select id="invPaymentStatus" style="width:100%; padding:0.65rem; background:#090d16; border:1px solid #334155; border-radius:4px; color:#fff;">
+                <option value="unpaid" selected>Unpaid (Add to Total Due Amount)</option>
+                <option value="paid">Already Paid (Do NOT add to Total Due Amount)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="invDueDateGroup" style="margin-bottom:0;">
+              <label style="font-weight:600; color:#fff;">Payment Due Date / Overdue Timeline</label>
+              <input type="date" id="invDueDate" style="padding:0.65rem;" required>
+              <div style="font-size:0.75rem; color:#94a3b8; margin-top:0.3rem;">Set custom due date when payment is expected.</div>
+            </div>
           </div>
         </div>
 

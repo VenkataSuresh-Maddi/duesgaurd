@@ -497,6 +497,7 @@ document.getElementById('createInvoiceForm').addEventListener('submit', async (e
   const invoice_date = document.getElementById('invDate').value;
   const due_date = document.getElementById('invDueDate').value;
   const po_reference = document.getElementById('invPoRef').value.trim();
+  const payment_status = document.getElementById('invPaymentStatus').value;
 
   const rows = document.querySelectorAll('.line-item-row');
   const items = [];
@@ -521,14 +522,15 @@ document.getElementById('createInvoiceForm').addEventListener('submit', async (e
     const res = await fetch('/api/invoices', {
       method: 'POST',
       headers: getBizHeaders(),
-      body: JSON.stringify({ customer_id, invoice_date, due_date, po_reference, items })
+      body: JSON.stringify({ customer_id, invoice_date, due_date, po_reference, items, payment_status })
     });
     const data = await res.json();
     if (!res.ok) return showAlert(alertEl, data.error || 'Failed to generate invoice.');
 
     createInvoiceModal.style.display = 'none';
-    loadInvoices();
-    loadDashboardMetrics();
+    await loadInvoices();
+    await loadDashboardMetrics();
+    await loadPayments();
     window.open(data.pdfUrl, '_blank');
   } catch (err) {
     showAlert(alertEl, 'Network error: ' + err.message);

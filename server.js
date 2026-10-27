@@ -670,7 +670,7 @@ app.get('/api/invoices/:id', requireAuth, requireBusinessOwner, async (req, res)
 
 // Create Invoice (Authoritative Backend Financial Calculation)
 app.post('/api/invoices', requireAuth, requireBusinessOwner, async (req, res) => {
-  const { customer_id, invoice_date, due_date, discount, po_reference, notes, items } = req.body;
+  const { customer_id, invoice_date, due_date, discount, po_reference, notes, items, payment_status } = req.body;
 
   if (!customer_id || !items || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Customer and at least one item are required.' });
@@ -748,7 +748,12 @@ app.post('/api/invoices', requireAuth, requireBusinessOwner, async (req, res) =>
 
     const totalDiscount = Math.max(0, Number(discount) || 0);
     const grandTotal = Math.max(0, (subtotal + totalCgst + totalSgst + totalIgst) - totalDiscount);
-    const balanceDue = grandTotal;
+    
+    // Check if user specified that invoice is already paid
+    const isPaid = payment_status === 'paid';
+    const amountPaid = isPaid ? grandTotal : 0.00;
+    const balanceDue = isPaid ? 0.00 : grandTotal;
+    const initialStatus = isPaid ? 'paid' : 'issued';
 
     const invDate = invoice_date || new Date().toISOString().split('T')[0];
     const defaultDueDays = req.currentBusiness.default_payment_terms_days || 30;
@@ -758,13 +763,14 @@ app.post('/api/invoices', requireAuth, requireBusinessOwner, async (req, res) =>
     const [invResult] = await connection.query(`
       INSERT INTO invoices 
       (business_id, customer_id, invoice_number, invoice_date, due_date, status, place_of_supply, subtotal, total_cgst, total_sgst, total_igst, total_discount, grand_total, amount_paid, balance_due, notes, po_reference)
-      VALUES (?, ?, ?, ?, ?, 'issued', ?, ?, ?, ?, ?, ?, ?, 0.00, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       req.currentBusiness.id,
       customer_id,
       invoiceNumber,
       invDate,
       computedDueDate,
+      initialStatus,
       placeOfSupply,
       subtotal.toFixed(2),
       totalCgst.toFixed(2),
@@ -772,12 +778,21 @@ app.post('/api/invoices', requireAuth, requireBusinessOwner, async (req, res) =>
       totalIgst.toFixed(2),
       totalDiscount.toFixed(2),
       grandTotal.toFixed(2),
+      amountPaid.toFixed(2),
       balanceDue.toFixed(2),
       notes || null,
       po_reference || null
     ]);
 
     const invoiceId = invResult.insertId;
+
+    // If marked as paid upfront, record initial payment reconciliation
+    if (isPaid) {
+      await connection.query(`
+        INSERT INTO payments (invoice_id, business_id, payment_date, amount, payment_method, reference_no, notes)
+        VALUES (?, ?, ?, ?, 'Direct Settlement', 'Paid upon invoicing', 'Settled on invoice creation')
+      `, [invoiceId, req.currentBusiness.id, invDate, grandTotal.toFixed(2)]);
+    }
 
     // 5. Insert Invoice Item Snapshots
     for (const it of validatedItems) {
@@ -815,7 +830,7 @@ app.post('/api/invoices', requireAuth, requireBusinessOwner, async (req, res) =>
       total_igst: totalIgst,
       total_discount: totalDiscount,
       grand_total: grandTotal,
-      amount_paid: 0,
+      amount_paid: amountPaid,
       balance_due: balanceDue,
       po_reference
     };
