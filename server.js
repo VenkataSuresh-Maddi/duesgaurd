@@ -978,6 +978,24 @@ app.post('/api/payments', requireAuth, requireBusinessOwner, async (req, res) =>
   }
 });
 
+// Get Payments for Business
+app.get('/api/payments', requireAuth, requireBusinessOwner, async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT p.*, i.invoice_number, c.name AS customer_name
+      FROM payments p
+      JOIN invoices i ON p.invoice_id = i.id
+      JOIN customers c ON i.customer_id = c.id
+      WHERE p.business_id = ?
+      ORDER BY p.payment_date DESC, p.id DESC
+    `, [req.currentBusiness.id]);
+    res.json({ payments: rows });
+  } catch (err) {
+    console.error('Fetch payments error:', err);
+    res.status(500).json({ error: 'Database error occurred.' });
+  }
+});
+
 // ==========================================
 // 8. EMAIL REMINDERS & BACKGROUND SCHEDULING
 // ==========================================

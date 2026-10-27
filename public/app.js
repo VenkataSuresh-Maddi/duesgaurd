@@ -372,7 +372,7 @@ async function loadInvoices() {
     tbody.innerHTML = data.invoices.map(inv => {
       if (Number(inv.balance_due) > 0.01) {
         disputeSelect.innerHTML += `<option value="${inv.id}">${inv.invoice_number} - ${inv.customer_name} (₹ ${inv.balance_due})</option>`;
-        paySelect.innerHTML += `<option value="${inv.id}">${inv.invoice_number} - ${inv.customer_name} (Balance: ₹ ${inv.balance_due})</option>`;
+        paySelect.innerHTML += `<option value="${inv.id}" data-balance="${inv.balance_due}">${inv.invoice_number} - ${inv.customer_name} (Balance: ₹ ${inv.balance_due})</option>`;
       }
 
       return `
@@ -405,7 +405,7 @@ function openCreateInvoiceModal() {
   createInvoiceModal.style.display = 'flex';
   clearAlert(document.getElementById('invModalAlert'));
   document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('invDueDate').value = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  document.getElementById('invDueDate').value = '';
 
   const custSelect = document.getElementById('invCustomerSelect');
   custSelect.innerHTML = cachedCustomers.map(c => `<option value="${c.id}">${c.name} (${c.state || 'Karnataka'})</option>`).join('');
@@ -653,16 +653,56 @@ document.getElementById('newProductForm').addEventListener('submit', async (e) =
 
 // ================= PAYMENT RECONCILIATION =================
 async function loadPayments() {
-  // Shown in invoices and payments list
-  loadInvoices();
+  if (!currentBusinessId) return;
+  try {
+    const res = await fetch('/api/payments', { headers: getBizHeaders() });
+    const data = await res.json();
+    const tbody = document.getElementById('paymentsTableBody');
+    if (!data.payments || data.payments.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No payments recorded yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.payments.map(p => `
+      <tr>
+        <td style="font-weight:600; color:#fff;">${escapeHtml(p.invoice_number)} <span style="font-size:0.75rem; color:#94a3b8;">(${escapeHtml(p.customer_name)})</span></td>
+        <td>${new Date(p.payment_date).toLocaleDateString('en-IN')}</td>
+        <td style="color:#10b981; font-weight:700;">₹ ${Number(p.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+        <td>${escapeHtml(p.payment_method || 'Bank Transfer')}</td>
+        <td>${escapeHtml(p.reference_no || 'N/A')}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Failed to load payments:', err);
+  }
 }
 
 const payModal = document.getElementById('paymentModal');
 document.getElementById('btnRecordPaymentModal').addEventListener('click', () => {
   payModal.style.display = 'flex';
   document.getElementById('payDate').value = new Date().toISOString().split('T')[0];
+  const paySelect = document.getElementById('payInvoiceSelect');
+  if (paySelect.selectedIndex >= 0 && paySelect.options[paySelect.selectedIndex]) {
+    const selected = paySelect.options[paySelect.selectedIndex];
+    const bal = selected.getAttribute('data-balance');
+    if (bal) {
+      document.getElementById('payAmount').value = bal;
+      document.getElementById('payAmount').max = bal;
+    }
+  }
 });
 document.getElementById('btnClosePayModal').addEventListener('click', () => payModal.style.display = 'none');
+
+document.getElementById('payInvoiceSelect').addEventListener('change', () => {
+  const paySelect = document.getElementById('payInvoiceSelect');
+  const selected = paySelect.options[paySelect.selectedIndex];
+  if (selected) {
+    const bal = selected.getAttribute('data-balance');
+    if (bal) {
+      document.getElementById('payAmount').value = bal;
+      document.getElementById('payAmount').max = bal;
+    }
+  }
+});
 
 document.getElementById('recordPaymentForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -686,9 +726,11 @@ document.getElementById('recordPaymentForm').addEventListener('submit', async (e
 
     payModal.style.display = 'none';
     document.getElementById('recordPaymentForm').reset();
-    loadInvoices();
-    loadDashboardMetrics();
-    alert('Payment recorded successfully!');
+    
+    // Immediately reload invoices, dashboard metrics, and payment list
+    await loadInvoices();
+    await loadDashboardMetrics();
+    await loadPayments();
   } catch (err) {
     showAlert(alertEl, 'Network error: ' + err.message);
   }
